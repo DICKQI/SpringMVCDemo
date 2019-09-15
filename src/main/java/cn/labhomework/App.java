@@ -13,7 +13,7 @@ public class App {
 
     @RequestMapping("/")
     public String home() {
-        return "这是个首页";
+        return "this is home";
     }
 
     public static void main(String[] args) {
