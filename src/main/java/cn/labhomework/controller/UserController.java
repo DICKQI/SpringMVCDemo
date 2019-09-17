@@ -25,7 +25,7 @@ import java.util.List;
 @Controller("student")
 @RequestMapping("/student")
 @CrossOrigin(allowCredentials = "true", allowedHeaders = "*")
-public class UserController {
+public class UserController extends BaseController  {
 
     @Autowired
     private UserService userService;
@@ -71,11 +71,40 @@ public class UserController {
         if (username.equals("")) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
+        StudentDO sessionStu = (StudentDO)request.getSession().getAttribute(ConstantUtils.USER_SESSION_KEY);
+        if (!sessionStu.getName().equals(username)) {
+            return CommonReturnType.create("你没有查看的权限");
+        }
+
         List<LoginLogDO> loginLogDOList = logService.selectLoginLogByStudentName(username);
         if (loginLogDOList == null) {
             throw new BusinessException(EmBusinessError.UNFOUND_LOG);
         }
         return CommonReturnType.create(loginLogDOList);
+    }
+
+
+
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonReturnType register(@RequestBody HashMap registerMap) throws BusinessException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        // 检查参数合法性
+        if (registerMap.get("name").equals("") || registerMap.get("password").equals("") || registerMap.get("gender").equals("")||
+        registerMap.get("ID_number") == null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+        // 检查用户是否存在
+        if (userService.getUserByName((String) registerMap.get("name")) != null) {
+            throw new BusinessException(EmBusinessError.USER_HAS_EXIST);
+        }
+        String encodePassword = EncodeBySha1((String) registerMap.get("password"));
+        StudentDO studentDO = new StudentDO();
+        studentDO.setPassword(encodePassword);
+        studentDO.setGender((String) registerMap.get("gender"));
+        studentDO.setName((String) registerMap.get("name"));
+        studentDO.setIdnumber((Integer) registerMap.get("ID_number"));
+        userService.registerStudent(studentDO);
+        return CommonReturnType.create("注册成功");
     }
 
     // 修改密码API
@@ -93,7 +122,7 @@ public class UserController {
             userService.updatePassword(studentDO);
             return CommonReturnType.create("修改密码成功");
         } else {
-            return CommonReturnType.create("身份证错误");
+            throw new BusinessException(EmBusinessError.IDNUMBER_ERROR);
         }
     }
 

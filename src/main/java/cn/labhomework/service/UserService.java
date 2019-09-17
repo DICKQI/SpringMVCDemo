@@ -8,4 +8,6 @@ public interface UserService {
 
     void updatePassword(StudentDO studentDO);
 
+    void registerStudent(StudentDO studentDO);
+
 }

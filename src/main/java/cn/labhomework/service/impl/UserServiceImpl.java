@@ -26,4 +26,9 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(StudentDO studentDO) {
         studentDOMapper.updateByPrimaryKey(studentDO);
     }
+
+    @Override
+    public void registerStudent(StudentDO studentDO) {
+        studentDOMapper.insert(studentDO);
+    }
 }

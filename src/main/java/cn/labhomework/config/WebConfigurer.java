@@ -11,11 +11,11 @@ public class WebConfigurer implements WebMvcConfigurer {
 
     @Autowired
     LoginInterceptor loginInterceptor;
-
+    // 注册拦截器
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/", "/student/login");
+                .excludePathPatterns("/", "/student/login", "/student/register");
     }
 }
